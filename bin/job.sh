@@ -9,7 +9,7 @@ function backup_db {
   DB=$1
   DATE=$(date +%Y-%m-%d-%H-%M)
 
-  pg_dump --username=postgres --host=$POSTGRESQL_SERVICE_HOST --port=$POSTGRESQL_SERVICE_PORT $DB > $TMP_DIR/$DB-dump.sql
+  pg_dump --username=$POSTGRESQL_ADMIN_USER --host=$POSTGRESQL_SERVICE_HOST --port=$POSTGRESQL_SERVICE_PORT $DB > $TMP_DIR/$DB-dump.sql
 
   if [ $? -ne 0 ]; then
     echo "db-dump for ${DB} not successful: ${DATE}"
