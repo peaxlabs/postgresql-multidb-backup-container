@@ -9,7 +9,7 @@ function backup_db {
   DB=$1
   DATE=$(date +%Y-%m-%d-%H-%M)
 
-  pg_dump --username=$POSTGRESQL_ADMIN_USER --host=$POSTGRESQL_SERVICE_HOST --port=$POSTGRESQL_SERVICE_PORT $DB > $TMP_DIR/$DB-dump.sql
+  pg_dump -Fc --username=$POSTGRESQL_ADMIN_USER --host=$POSTGRESQL_SERVICE_HOST --port=$POSTGRESQL_SERVICE_PORT $DB > $TMP_DIR/$DB.dump
 
   if [ $? -ne 0 ]; then
     echo "db-dump for ${DB} not successful: ${DATE}"
@@ -17,7 +17,7 @@ function backup_db {
   fi
 
   mkdir -p $BACKUP_DATA_DIR/$DB
-  gzip -c $TMP_DIR/$DB-dump.sql > $BACKUP_DATA_DIR/$DB/dump-${DATE}.sql.gz
+  mv $TMP_DIR/$DB.dump $BACKUP_DATA_DIR/$DB/$DB-${DATE}.dump
 
   if [ $? -eq 0 ]; then
     echo "backup of db ${DB} created: ${DATE}"
@@ -27,7 +27,7 @@ function backup_db {
   fi
 
   # Delete old files
-  old_dumps=$(ls -1 $BACKUP_DATA_DIR/$DB/dump* | head -n -$BACKUP_KEEP)
+  old_dumps=$(ls -1 $BACKUP_DATA_DIR/$DB/*.dump | head -n -$BACKUP_KEEP)
   if [ "$old_dumps" ]; then
     echo "Deleting: $old_dumps"
     rm $old_dumps
